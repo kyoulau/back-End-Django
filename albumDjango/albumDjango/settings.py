@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'Album'
 ]
 
 MIDDLEWARE = [
@@ -75,10 +76,18 @@ WSGI_APPLICATION = 'albumDjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'banco_django',
+        'USER': 'root',
+        'PASSWORD': '1234',  # A senha deve ser uma string
+        'HOST': 'localhost',
+        'PORT': '3306',       # A porta pode ser uma string ou um número
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
+
 
 
 # Password validation
