@@ -1,27 +1,33 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status
-
-from .serializer import AlbumSerializer
-from .models import Album
-
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
+
+from django.http import JsonResponse
+
+from . serializers import FaixaSerializer 
+from .models import Faixa
+from .serializer import AlbumSerializer
+from .models import Album
+
+from .exceptions import IDNotFoundException
+from .validation import validate_data
 
 @swagger_auto_schema(method='get', tags=['Álbuns'])
 @api_view(['GET'])
 def lista_albuns(request):
     try:
-        albuns = Album.objects.all()  # Buscando todos os objetos Album
+        albuns = Album.objects.all()
         if not albuns:
             return Response("erro ao buscar Albuns", status=status.HTTP_400_BAD_REQUEST)            
-        serializer = AlbumSerializer(albuns, many=True)  # Serializando os dados
-        return Response(serializer.data)  # Retornando a resposta em formato JSON
+        serializer = AlbumSerializer(albuns, many=True)
+        return Response(serializer.data)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -41,7 +47,6 @@ def get_album(request):
         serializer = AlbumSerializer(album)
         
         return Response(serializer.data) 
-    # Retornando a resposta em formato JSON
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,9 +57,9 @@ def create_album(request):
         serializer = AlbumSerializer(data=request.data)
                 
         if serializer.is_valid():
-            serializer.save()  # Salvando os dados no banco
-            return Response(serializer.data, status=status.HTTP_201_CREATED)  # Retorna o álbum criado
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Retorna erros se houver
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -71,16 +76,13 @@ def update_album(request):
         album = get_object_or_404(Album, id=album_id)
         if not album:
             return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
-        
 
-        # Atualização (PUT)
         if request.method == 'PUT':
-            # Serializar os dados recebidos para o álbum
             serializer = AlbumSerializer(album, data=request.data)
-            # Verificar se os dados são válidos
+
             if serializer.is_valid():
-                serializer.save()  # Atualizar os dados no banco de dados
-                return Response(serializer.data, status=status.HTTP_200_OK)  # Retornar os dados atualizados
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -98,7 +100,7 @@ def delete_album(request):
         if not album:
             return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
-        album.delete()  # Excluir o álbum do banco de dados
+        album.delete()
         return Response({"album deletado com sucesso"} ,status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -106,3 +108,158 @@ def delete_album(request):
 
 
 
+
+@swagger_auto_schema(method='post', tags=['Faixa'])
+@api_view(["POST"])
+def create_faixa_album(request):
+
+    try:
+        faixa = FaixaSerializer (data = request.data)
+
+        if faixa.is_valid():
+            faixa.save()
+        return Response(
+            {
+                'status':  'Sucess',
+                'message': 'Faixa criada com sucesso!'
+            }, status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao criação de faixa.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
+
+@swagger_auto_schema(method='post', tags=['Faixa'])      
+@api_view(["GET"])
+def get_faixa_album(request):
+    try:
+        faixa = Faixa.objects.all()
+
+        faixa_serializer = FaixaSerializer(faixa, many=True)
+
+        return Response(
+            {
+                'status': 'Sucess',
+                'message': 'Faixas carregadas com sucesso!',
+                'faixas':faixa_serializer.data
+            }, status= status.HTTP_200_OK
+        )
+    
+    except Exception as e:
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao retornar faixas.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
+    
+@swagger_auto_schema(method='get', tags=['Faixa'])      
+@api_view(["GET"])
+def get_faixa_album_by_id(request):
+    params = request.data
+
+    try:
+        faixa = Faixa.objects.get(pk = params["faixa"])
+
+        if faixa is None:
+            return Response(
+                {
+                    'status': 'Error',
+                    'message': "O parâmetro 'faixa' é obrigatório."
+                },status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        serializer = FaixaSerializer(faixa)
+        return Response(
+            {
+                'status': 'Sucess',
+                'message': "Faixa encontrada com sucesso!",
+                'faixa': serializer.data
+            }, status=status.HTTP_200_OK
+        )
+    
+    except Faixa.DoesNotExist:
+        raise IDNotFoundException("A faixa com o ID especificado não existe.")
+
+    except Exception as e:
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao retornar faixa.",
+                "error": str(e)
+            }, status= status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    
+@swagger_auto_schema(method='put', tags=['Faixa'])      
+@api_view(["PUT"])
+@validate_data(['faixa'])
+def update_faixa_album(request):
+
+    params = request.data
+
+    try:
+        faixa = Faixa.objects.get(pk = params["faixa"])
+
+        if "titulo" in params:
+            faixa.titulo = params["titulo"]
+
+        if "duracao" in params:
+            faixa.duracao = params["duracao"]
+
+        if "album" in params:
+            faixa.albuns = Album.objects.get(pk = params["album"])
+
+        faixa_serializer = FaixaSerializer(faixa)
+
+        faixa.save()
+
+        return Response(
+            {
+                "status": "Sucess",
+                "message": "Faixa editada com sucesso!",
+                "faixa": faixa_serializer.data
+            },status= status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao editar faixa.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
+
+@swagger_auto_schema(method='delete', tags=['Faixa'])      
+@api_view(["DELETE"])
+@validate_data(["faixa"])
+def delete_faixa_album(request):
+    params = request.data
+
+    try:
+        faixa = Faixa.objects.get(pk = params["faixa"])
+        faixa.delete()
+        return Response(
+            {
+                "status": "Sucess",
+                "message": "Faixa excluida com sucesso!"
+            },status= status.HTTP_200_OK
+        )
+    except Faixa.DoesNotExist:
+        raise IDNotFoundException("A faixa com o ID especificado não existe.")
+        
+    except Exception as e:
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao deletar faixa.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
