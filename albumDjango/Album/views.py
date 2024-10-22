@@ -134,7 +134,7 @@ def create_faixa_album(request):
             }, status= status.HTTP_400_BAD_REQUEST
         )
 
-@swagger_auto_schema(method='post', tags=['Faixa'])      
+@swagger_auto_schema(method='get', tags=['Faixa'])      
 @api_view(["GET"])
 def get_faixa_album(request):
     try:
@@ -263,3 +263,4 @@ def delete_faixa_album(request):
                 "error": str(e)
             }, status= status.HTTP_400_BAD_REQUEST
         )
+        
