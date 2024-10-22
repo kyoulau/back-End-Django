@@ -9,66 +9,100 @@ from .models import Album
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+@swagger_auto_schema(method='get', tags=['Álbuns'])
 @api_view(['GET'])
 def lista_albuns(request):
-    albuns = Album.objects.all()  # Buscando todos os objetos Album
-    serializer = AlbumSerializer(albuns, many=True)  # Serializando os dados
-    return Response(serializer.data)  # Retornando a resposta em formato JSON
+    try:
+        albuns = Album.objects.all()  # Buscando todos os objetos Album
+        if not albuns:
+            return Response("erro ao buscar Albuns", status=status.HTTP_400_BAD_REQUEST)            
+        serializer = AlbumSerializer(albuns, many=True)  # Serializando os dados
+        return Response(serializer.data)  # Retornando a resposta em formato JSON
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-
+@swagger_auto_schema(method='get', tags=['Álbuns'])
 @api_view(['GET'])
 def get_album(request):
-    
-    album_id = request.query_params.get('id')
+    try:
+        album_id = request.query_params.get('id')
 
-    if not album_id:
-        return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_400_BAD_REQUEST)
+        if not album_id:
+            return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
-    album = get_object_or_404(Album, id=album_id)
-    
-    serializer = AlbumSerializer(album)
-    
-    return Response(serializer.data)  # Retornando a resposta em formato JSON
+        album = get_object_or_404(Album, id=album_id)
+        if not album:
+            return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = AlbumSerializer(album)
+        
+        return Response(serializer.data) 
+    # Retornando a resposta em formato JSON
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@swagger_auto_schema(method='post', tags=['Álbuns'])
 @api_view(['POST'])
 def create_album(request):
-    
-    serializer = AlbumSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        serializer.save()  # Salvando os dados no banco
-        return Response(serializer.data, status=status.HTTP_201_CREATED)  # Retorna o álbum criado
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Retorna erros se houver
-
+    try:
+        serializer = AlbumSerializer(data=request.data)
+                
+        if serializer.is_valid():
+            serializer.save()  # Salvando os dados no banco
+            return Response(serializer.data, status=status.HTTP_201_CREATED)  # Retorna o álbum criado
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Retorna erros se houver
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+@swagger_auto_schema(method='put', tags=['Álbuns'])
 @api_view(['PUT'])
 def update_album(request):
+    try:
     
-    album_id = request.query_params.get('id')
+        album_id = request.query_params.get('id')
 
-    if not album_id:
-        return Response({"error": "O parâmetro 'id' é necessário."}, status=200)
+        if not album_id:
+            return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
-    album = get_object_or_404(Album, id=album_id)
+        album = get_object_or_404(Album, id=album_id)
+        if not album:
+            return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
+        
 
-    # Atualização (PUT)
-    if request.method == 'PUT':
-        # Serializar os dados recebidos para o álbum
-        serializer = AlbumSerializer(album, data=request.data)
-        # Verificar se os dados são válidos
-        if serializer.is_valid():
-            serializer.save()  # Atualizar os dados no banco de dados
-            return Response(serializer.data)  # Retornar os dados atualizados
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Atualização (PUT)
+        if request.method == 'PUT':
+            # Serializar os dados recebidos para o álbum
+            serializer = AlbumSerializer(album, data=request.data)
+            # Verificar se os dados são válidos
+            if serializer.is_valid():
+                serializer.save()  # Atualizar os dados no banco de dados
+                return Response(serializer.data, status=status.HTTP_200_OK)  # Retornar os dados atualizados
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@swagger_auto_schema(method='delete', tags=['Álbuns'])
 @api_view(['DELETE'])
 def delete_album(request):
-    
-    album_id = request.query_params.get('id')
+    try:
+        album_id = request.query_params.get('id')
 
-    if not album_id:
-        return Response({"error": "O parâmetro 'id' é necessário."}, status=200)
+        if not album_id:
+            return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
-    album = get_object_or_404(Album, id=album_id)
+        album = get_object_or_404(Album, id=album_id)
+        if not album:
+            return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
-    album.delete()  # Excluir o álbum do banco de dados
-    return Response(status=status.HTTP_204_NO_CONTENT)
+        album.delete()  # Excluir o álbum do banco de dados
+        return Response({"album deletado com sucesso"} ,status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
