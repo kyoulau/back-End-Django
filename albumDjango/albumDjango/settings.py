@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'banco_django',
         'USER': 'root',
-        'PASSWORD': '1234',  # A senha deve ser uma string
+        'PASSWORD': 'PUC@1234',  # A senha deve ser uma string
         'HOST': 'localhost',
         'PORT': '3306',       # A porta pode ser uma string ou um número
         'OPTIONS': {
