@@ -20,4 +20,8 @@ from . import views
 
 urlpatterns = [
     path('faixas/', views.create_faixa_album , name="faixa-create"),
+    path("get_faixas/", views.get_faixa_album, name="faixa-get-all"),
+    path("get_faixa_id/", views.get_faixa_album_by_id, name="faixa-get-by-id"),
+    path("update_faixa_album/", views.update_faixa_album, name="faixa-update"),
+    path("delete_faixa/", views.delete_faixa_album, name="faixa-delete")
 ]
