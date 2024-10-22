@@ -1,3 +1,4 @@
+
 """
 URL configuration for albumDjango project.
 
@@ -23,5 +24,11 @@ urlpatterns = [
     path("get_faixas/", views.get_faixa_album, name="faixa-get-all"),
     path("get_faixa_id/", views.get_faixa_album_by_id, name="faixa-get-by-id"),
     path("update_faixa_album/", views.update_faixa_album, name="faixa-update"),
-    path("delete_faixa/", views.delete_faixa_album, name="faixa-delete")
+    path("delete_faixa/", views.delete_faixa_album, name="faixa-delete"),
+
+    path('lista_albuns/', views.lista_albuns, name='lista_albuns'),
+    path('get_album/', views.get_album, name='get_album'),
+    path('create_album/', views.create_album, name='create_album'),
+    path('update_album/', views.update_album, name='update_album'),
+    path('delete_album/', views.delete_album, name='delete_album'),
 ]
