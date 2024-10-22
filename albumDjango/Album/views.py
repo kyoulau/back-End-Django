@@ -9,6 +9,11 @@ from .models import Album
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+@swagger_auto_schema(method='get', tags=['Álbuns'])
 @api_view(['GET'])
 def lista_albuns(request):
     try:
@@ -20,6 +25,7 @@ def lista_albuns(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@swagger_auto_schema(method='get', tags=['Álbuns'])
 @api_view(['GET'])
 def get_album(request):
     try:
@@ -39,6 +45,7 @@ def get_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@swagger_auto_schema(method='post', tags=['Álbuns'])
 @api_view(['POST'])
 def create_album(request):
     try:
@@ -51,7 +58,7 @@ def create_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
         
-
+@swagger_auto_schema(method='put', tags=['Álbuns'])
 @api_view(['PUT'])
 def update_album(request):
     try:
@@ -78,7 +85,7 @@ def update_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-
+@swagger_auto_schema(method='delete', tags=['Álbuns'])
 @api_view(['DELETE'])
 def delete_album(request):
     try:
