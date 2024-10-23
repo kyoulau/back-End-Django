@@ -19,16 +19,26 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
-urlpatterns = [
-    path('faixas/', views.create_faixa_album , name="faixa-create"),
-    path("get_faixas/", views.get_faixa_album, name="faixa-get-all"),
-    path("get_faixa_id/", views.get_faixa_album_by_id, name="faixa-get-by-id"),
-    path("update_faixa_album/", views.update_faixa_album, name="faixa-update"),
-    path("delete_faixa/", views.delete_faixa_album, name="faixa-delete"),
+"""
+    path('album/', views.lista_albuns, name='lista_albuns'),
+    path('album/<int:id>', views.get_album, name='get_album'),
+    path('album/', views.create_album, name='create_album'),
+    path('album/<int:id>', views.update_album, name='update_album'),
+    path('album/<int:id>', views.delete_album, name='delete_album'),
 
-    path('lista_albuns/', views.lista_albuns, name='lista_albuns'),
-    path('get_album/', views.get_album, name='get_album'),
-    path('create_album/', views.create_album, name='create_album'),
-    path('update_album/', views.update_album, name='update_album'),
-    path('delete_album/', views.delete_album, name='delete_album'),
+"""
+urlpatterns = [    
+    path('album/', views.lista_albuns, name='lista_albuns'),
+    path('album/<int:id>', views.get_album, name='get_album'),
+    path('album/', views.create_album, name='create_album'),
+    path('album/<int:id>', views.update_album, name='update_album'),
+    path('album/<int:id>', views.delete_album, name='delete_album'),
+    
+    path('faixas/', views.create_faixa_album , name="faixa-create"),
+    path("faixas/", views.get_faixa_album, name="faixa-get-all"),
+    path("faixas/<int:id>", views.get_faixa_album_by_id, name="faixa-get-by-id"),
+    path("faixas/", views.update_faixa_album, name="faixa-update"),
+    path("faixas/", views.delete_faixa_album, name="faixa-delete"),
+    
+    
 ]

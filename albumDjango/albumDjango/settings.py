@@ -40,9 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
-    'Album'
+    'drf_spectacular',
+    'Album',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Sua API',
+    'DESCRIPTION': 'Descrição da sua API',
+    'VERSION': '1.0.0',
+    # Adicione outras configurações conforme necessário
+}
 
 LOGGING = {
     "version": 1,
@@ -120,7 +131,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'banco_django',
         'USER': 'root',
-        'PASSWORD': 'PUC@1234',  # A senha deve ser uma string
+        'PASSWORD': '1234',  # A senha deve ser uma string
         'HOST': 'localhost',
         'PORT': '3306',       # A porta pode ser uma string ou um número
         'OPTIONS': {

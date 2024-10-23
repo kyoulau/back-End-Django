@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -19,7 +20,7 @@ from .models import Album
 from .exceptions import IDNotFoundException
 from .validation import validate_data
 
-@swagger_auto_schema(method='get', tags=['Álbuns'])
+@extend_schema(methods=['GET'], tags=['Album'])   
 @api_view(['GET'])
 def lista_albuns(request):
     try:
@@ -31,7 +32,7 @@ def lista_albuns(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(method='get', tags=['Álbuns'])
+@extend_schema(methods=['GET'], tags=['Album'])   
 @api_view(['GET'])
 def get_album(request):
     try:
@@ -50,7 +51,7 @@ def get_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(method='post', tags=['Álbuns'])
+@extend_schema(methods=['POST'], tags=['Album'])   
 @api_view(['POST'])
 def create_album(request):
     try:
@@ -63,7 +64,7 @@ def create_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
         
-@swagger_auto_schema(method='put', tags=['Álbuns'])
+@extend_schema(methods=['PUT'], tags=['Album'])   
 @api_view(['PUT'])
 def update_album(request):
     try:
@@ -87,7 +88,7 @@ def update_album(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@swagger_auto_schema(method='delete', tags=['Álbuns'])
+@extend_schema(methods=['DELETE'], tags=['Album'])   
 @api_view(['DELETE'])
 def delete_album(request):
     try:
@@ -106,10 +107,10 @@ def delete_album(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
+###############################FAIXA###########################################
 
 
-
-@swagger_auto_schema(method='post', tags=['Faixa'])
+@extend_schema(methods=['POST'], tags=['Faixa'])
 @api_view(["POST"])
 def create_faixa_album(request):
 
@@ -134,7 +135,7 @@ def create_faixa_album(request):
             }, status= status.HTTP_400_BAD_REQUEST
         )
 
-@swagger_auto_schema(method='get', tags=['Faixa'])      
+@extend_schema(methods=['GET'], tags=['Faixa'])    
 @api_view(["GET"])
 def get_faixa_album(request):
     try:
@@ -159,7 +160,7 @@ def get_faixa_album(request):
             }, status= status.HTTP_400_BAD_REQUEST
         )
     
-@swagger_auto_schema(method='get', tags=['Faixa'])      
+@extend_schema(methods=['GET'], tags=['Faixa'])   
 @api_view(["GET"])
 def get_faixa_album_by_id(request):
     params = request.data
@@ -197,7 +198,7 @@ def get_faixa_album_by_id(request):
         )
 
     
-@swagger_auto_schema(method='put', tags=['Faixa'])      
+@extend_schema(methods=['PUT'], tags=['Faixa'])     
 @api_view(["PUT"])
 @validate_data(['faixa'])
 def update_faixa_album(request):
@@ -237,7 +238,7 @@ def update_faixa_album(request):
             }, status= status.HTTP_400_BAD_REQUEST
         )
 
-@swagger_auto_schema(method='delete', tags=['Faixa'])      
+@extend_schema(methods=['DELETE'], tags=['Faixa'])   
 @api_view(["DELETE"])
 @validate_data(["faixa"])
 def delete_faixa_album(request):
