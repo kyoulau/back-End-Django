@@ -104,7 +104,7 @@ def update_album(request):
         album_id = request.query_params.get('id')
 
         if not album_id:
-            logger.debug('Erro: O parâmetro 'id' é necessário.')
+            logger.debug('Erro: O parâmetro id é necessário.')
             return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
         album = get_object_or_404(Album, id=album_id)
