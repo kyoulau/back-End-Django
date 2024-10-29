@@ -1,3 +1,4 @@
+import logging
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
@@ -20,17 +21,27 @@ from .models import Album
 from .exceptions import IDNotFoundException
 from .validation import validate_data
 
+logger = logging.getLogger('FaixaAlbum: ')
+
 @extend_schema(methods=['GET'], tags=['Album'])   
 @api_view(['GET'])
 def lista_albuns(request):
     try:
         albuns = Album.objects.all()
         if not albuns:
+            logger.debug('erro ao buscar Albuns')
             return Response("erro ao buscar Albuns", status=status.HTTP_400_BAD_REQUEST)            
         serializer = AlbumSerializer(albuns, many=True)
         return Response(serializer.data)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.debug('erro ao listar Albuns')
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao listar Albuns.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
 
 @extend_schema(methods=['GET'], tags=['Album'])   
 @api_view(['GET'])
@@ -39,17 +50,29 @@ def get_album(request):
         album_id = request.query_params.get('id')
 
         if not album_id:
+            logger.debug('erro: O parâmetro id é necessário.')
             return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
         album = get_object_or_404(Album, id=album_id)
         if not album:
+            logger.debug('erro ao buscar Album')
             return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
         
         serializer = AlbumSerializer(album)
-        
         return Response(serializer.data) 
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    except Album.DoesNotExist:
+        logger.debug('O Album com o ID especificado não existe.')
+        raise IDNotFoundException("O Album com o ID especificado não existe.")
+    except Exception as e:
+        logger.debug('Erro ao buscar Album')
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao buscar Album.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
 
 @extend_schema(methods=['POST'], tags=['Album'])   
 @api_view(['POST'])
@@ -60,9 +83,18 @@ def create_album(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        logger.debug('Erro ao criar Album')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as e:
+        logger.debug('Erro ao criar Album')
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao criar Album.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
         
 @extend_schema(methods=['PUT'], tags=['Album'])   
 @api_view(['PUT'])
@@ -72,10 +104,12 @@ def update_album(request):
         album_id = request.query_params.get('id')
 
         if not album_id:
+            logger.debug('Erro: O parâmetro id é necessário.')
             return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
         album = get_object_or_404(Album, id=album_id)
         if not album:
+            logger.debug('Erro ao buscar Album')
             return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
         if request.method == 'PUT':
@@ -84,9 +118,20 @@ def update_album(request):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
+            logger.debug('Erro ao atualizar Album')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except Album.DoesNotExist:
+        logger.debug('O Album com o ID especificado não existe.')
+        raise IDNotFoundException("O Album com o ID especificado não existe.")
+    except Exception as e:
+        logger.debug('Erro ao editar Album')
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao editar Album.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
 
 @extend_schema(methods=['DELETE'], tags=['Album'])   
 @api_view(['DELETE'])
@@ -95,16 +140,28 @@ def delete_album(request):
         album_id = request.query_params.get('id')
 
         if not album_id:
+            logger.debug('erro: O parâmetro id é necessário.')
             return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
         album = get_object_or_404(Album, id=album_id)
         if not album:
+            logger.debug('Erro ao buscar Album')
             return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
         album.delete()
         return Response({"album deletado com sucesso"} ,status=status.HTTP_200_OK)
-    except:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except Album.DoesNotExist:
+        logger.debug('O Album com o ID especificado não existe.')
+        raise IDNotFoundException("O Album com o ID especificado não existe.")
+    except Exception as e:
+        logger.debug('Erro ao deletar Album')
+        return Response(
+            {
+                "status": "Error",
+                "message": "Erro ao deletar faixa.",
+                "error": str(e)
+            }, status= status.HTTP_400_BAD_REQUEST
+        )
 
 
 ###############################FAIXA###########################################
@@ -119,14 +176,24 @@ def create_faixa_album(request):
 
         if faixa.is_valid():
             faixa.save()
+            return Response(
+                {
+                    'status':  'Sucess',
+                    'message': 'Faixa criada com sucesso!'
+                }, status=status.HTTP_200_OK
+            )
+        
+        logger.debug('Erro ao criar Faixa')
         return Response(
             {
-                'status':  'Sucess',
-                'message': 'Faixa criada com sucesso!'
-            }, status=status.HTTP_200_OK
+                'status':  'Error',
+                'message': 'Erro ao criação de faixa.',
+                "error": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST
         )
 
     except Exception as e:
+        logger.debug('Erro ao criar Faixa')
         return Response(
             {
                 "status": "Error",
@@ -151,7 +218,8 @@ def get_faixa_album(request):
             }, status= status.HTTP_200_OK
         )
     
-    except Exception as e:
+    except Exception as e:        
+        logger.debug('Erro ao retornar Faixas')
         return Response(
             {
                 "status": "Error",
@@ -169,6 +237,7 @@ def get_faixa_album_by_id(request):
         faixa = Faixa.objects.get(pk = params["faixa"])
 
         if faixa is None:
+            logger.debug('erro: O parâmetro faixa é obrigatório.')
             return Response(
                 {
                     'status': 'Error',
@@ -186,9 +255,11 @@ def get_faixa_album_by_id(request):
         )
     
     except Faixa.DoesNotExist:
+        logger.debug('erro: A faixa com o ID especificado não existe.')
         raise IDNotFoundException("A faixa com o ID especificado não existe.")
 
     except Exception as e:
+        logger.debug('Erro ao retornar faixa')
         return Response(
             {
                 "status": "Error",
@@ -218,7 +289,6 @@ def update_faixa_album(request):
             faixa.albuns = Album.objects.get(pk = params["album"])
 
         faixa_serializer = FaixaSerializer(faixa)
-
         faixa.save()
 
         return Response(
@@ -230,6 +300,8 @@ def update_faixa_album(request):
         )
 
     except Exception as e:
+        
+        logger.debug('Erro ao editar faixa')
         return Response(
             {
                 "status": "Error",
@@ -254,9 +326,11 @@ def delete_faixa_album(request):
             },status= status.HTTP_200_OK
         )
     except Faixa.DoesNotExist:
+        logger.debug('Erro: A faixa com o ID especificado não existe.')
         raise IDNotFoundException("A faixa com o ID especificado não existe.")
         
     except Exception as e:
+        logger.debug('Erro ao deletar faixa')
         return Response(
             {
                 "status": "Error",
