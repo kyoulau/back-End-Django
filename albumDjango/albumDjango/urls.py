@@ -24,11 +24,6 @@ from drf_yasg import openapi
 
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-
-logger = logging.getLogger('tuna')
-logger.debug('this is a debug message')
-logger.info('this is an info message')
-
 urlpatterns = [
     path('admin/', admin.site.urls), 
     path('api/', include('Album.urls')),
