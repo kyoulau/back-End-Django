@@ -46,7 +46,6 @@ class AlbumModelTestCase(TestCase):
         # Verificar se a faixa ainda existe, mas não está mais associada ao álbum
         self.assertTrue(Faixa.objects.filter(id=faixa.id).exists())
 
-
 class FaixaModelTestCase(TestCase):
     def test_faixa_creation(self):
         album = Album.objects.create(
