@@ -1,3 +1,4 @@
+import logging
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
@@ -21,18 +22,30 @@ from .models import Album
 from .exceptions import IDNotFoundException
 from .validation import validate_data
 
+logger = logging.getLogger('AlbumFaixaView: ')
+
+
 @extend_schema(tags=['Album']) 
 class AlbumView(APIView):
     def get(self, request):
         try:
             albuns = Album.objects.all()
             if not albuns:
+                logger.debug('erro ao listar Albuns')
                 return Response("erro ao buscar Albuns", status=status.HTTP_400_BAD_REQUEST)   
                         
             serializer = AlbumSerializer(albuns, many=True)
             return Response(serializer.data)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            logger.debug('erro ao listar Albuns')
+            return Response(
+                {
+                    "status": "Error",
+                    "message": "Erro ao listar Albuns.",
+                    "error": str(e)
+                }, status= status.HTTP_400_BAD_REQUEST
+            )
 
     def post(self, request):
         try:
@@ -41,8 +54,11 @@ class AlbumView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            logger.debug('erro ao criar Albuns')
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         except:
+            logger.debug('erro ao criar Albuns')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(tags=['Album'])
@@ -52,20 +68,25 @@ class AlbumViewId(APIView):
             if id:
                 album = get_object_or_404(Album, id=id)
                 if not album:
+                    logger.debug('erro ao buscar Albuns')
                     return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
                 
                 serializer = AlbumSerializer(album)
                 return Response(serializer.data) 
         except:
+            
+            logger.debug('erro ao buscar Albuns')
             return Response(status=status.HTTP_400_BAD_REQUEST)
  
     def put(self, request, id):
         try:
             if not id:
+                logger.debug('erro: o parâmetro id é necessario')
                 return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
             album = get_object_or_404(Album, id=id)
             if not album:
+                logger.debug('erro ao encontrar Album')
                 return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
             if request.method == 'PUT':
@@ -75,21 +96,26 @@ class AlbumViewId(APIView):
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            logger.debug('erro ao editar Albuns')
+            
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
         try:
             if not id:
+                logger.debug('erro: o parametro id é necessário')
                 return Response({"error": "O parâmetro 'id' é necessário."}, status=status.HTTP_404_NOT_FOUND)
 
             album = get_object_or_404(Album, id=id)
             if not album:
+                logger.debug('erro ao encontrar Album')
                 return Response({"error": "Erro ao buscar Album"}, status=status.HTTP_404_NOT_FOUND)
 
             album.delete()
             return Response({"album deletado com sucesso"} ,status=status.HTTP_200_OK)
         except:
+            logger.debug('erro ao apagar Album')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -111,6 +137,8 @@ class FaixaView(APIView):
                 }, status= status.HTTP_200_OK
             )
         except Exception as e:
+            logger.debug('erro ao listar Faixas')
+            
             return Response(
                 {
                     "status": "Error",
@@ -132,6 +160,8 @@ class FaixaView(APIView):
                         'message': 'Faixa criada com sucesso!'
                     }, status=status.HTTP_200_OK
                 )
+
+            logger.debug('erro ao criar Faixa')
             return Response(
                 {
                     'status':  'Error',
@@ -140,6 +170,7 @@ class FaixaView(APIView):
             )
 
         except Exception as e:
+            logger.debug('erro ao criar Faixa')
             return Response(
                 {
                     "status": "Error",
@@ -153,6 +184,7 @@ class FaixaViewId(APIView):
     def get(self, request, id=None):
         try:
             if id is None:
+                logger.debug('erro: o parametro id é necessario')
                 return Response(
                     {
                         'status': 'Error',
@@ -162,11 +194,12 @@ class FaixaViewId(APIView):
             
             faixa = Faixa.objects.get(pk = id)
             
-            if id is None:
+            if faixa is None:
+                logger.debug('erro ao buscar faixa ')
                 return Response(
                     {
                         'status': 'Error',
-                        'message': "O parâmetro 'faixa' é invalido."
+                        'message': "erro ao buscar faixa."
                     },status=status.HTTP_401_UNAUTHORIZED
                 )
             
@@ -178,9 +211,15 @@ class FaixaViewId(APIView):
                     'message': "Faixa encontrada com sucesso!",
                     'faixa': serializer.data
                 }, status=status.HTTP_200_OK
-            )                
+            )
+            
+        except Faixa.DoesNotExist:
+            logger.debug('erro ao apagar faixa ')
+            
+            raise IDNotFoundException("A faixa com o ID especificado não existe.")            
     
         except Exception as e:
+            logger.debug('erro ao buscar faixa ')
             return Response(
                 {
                     "status": "Error",
@@ -188,6 +227,7 @@ class FaixaViewId(APIView):
                     "error": str(e)
                 }, status= status.HTTP_400_BAD_REQUEST
             )
+            
         
     def put(self, request, id):
         params = request.data
@@ -215,8 +255,14 @@ class FaixaViewId(APIView):
                     "faixa": faixa_serializer.data
                 },status= status.HTTP_200_OK
             )
-
+        except Faixa.DoesNotExist:
+            logger.debug('erro ao apagar faixa ')
+            
+            raise IDNotFoundException("A faixa com o ID especificado não existe.")
+        
         except Exception as e:
+            logger.debug('erro ao editar faixa ')
+            
             return Response(
                 {
                     "status": "Error",
@@ -236,9 +282,12 @@ class FaixaViewId(APIView):
                 },status= status.HTTP_200_OK
             )
         except Faixa.DoesNotExist:
+            logger.debug('erro ao apagar faixa ')
+            
             raise IDNotFoundException("A faixa com o ID especificado não existe.")
             
         except Exception as e:
+            logger.debug('erro ao apagar faixa ')
             return Response(
                 {
                     "status": "Error",
