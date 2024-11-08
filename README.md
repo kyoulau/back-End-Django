@@ -46,8 +46,8 @@ Ativar o ambiente virtual
 myenv\Scripts\activate
 ```
 
-No MacOS/Linux
 ```bash
+  No MacOS/Linux
   source myenv/bin/activate
 ```
 
