@@ -13,6 +13,9 @@ Delete, das informações principais de nossa API.
 
 End-point onde relaciona o processo N da relação entre as duas classes. Por meio de parâmetros de Query.
 
+## Link video análise do código
+- [Clique aqui](https://www.youtube.com/watch?v=rvj0Tu4mJXM)
+
 
 ## Boas Práticas do Software
 
